@@ -12,7 +12,7 @@ _steps = [
     "basic_cleaning",
     "data_check",
     "data_split",
-    "train_lgbm",
+    "train_lgbm_main",
     # NOTE: We do not include this in the steps so it is not run by mistake.
     # You first need to promote a model export to "prod" before you can run this,
     # then you need to run this step explicitly
@@ -78,7 +78,7 @@ def go(config: DictConfig):
 
         if "data_split" in active_steps:
             mlflow.run(
-                f"{config['main']['components_repository']}/train_val_test_split",
+                f"{config['main']['components_repository']}/train_val_test_split_main",
                 "main",
                  parameters={
                     "input": "clean_sample.csv:latest",
@@ -99,10 +99,10 @@ def go(config: DictConfig):
             # step
 
             mlflow.run(
-                os.path.join(hydra.utils.get_original_cwd(), "src", "train_lgbm"),
+                os.path.join(hydra.utils.get_original_cwd(), "src", "train_lgbm_main"),
                 "main",
                 parameters={
-                "trainval_artifact": "trainval_data.csv:latest",
+                "trainval_artifact": "trainval_main_data.csv:latest",
                 "val_size": config['modeling']['val_size'],
                 "random_seed": config['modeling']['random_seed'],
                 "stratify_by": config['modeling']['stratify_by'],
