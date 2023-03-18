@@ -75,7 +75,7 @@ def go(args):
 
     ######################################
     # Fit the pipeline sk_pipe by calling the .fit method on X_train and y_train
-    # YOUR CODE HERE
+    sk_pipe.fit(X_train,y_train)
     ######################################
 
     # Compute r2 and MAE
@@ -95,18 +95,28 @@ def go(args):
         shutil.rmtree("lgbm_dir")
 
     ######################################
-    # Save the sk_pipe pipeline as a mlflow.sklearn model in the directory "lgbm_dir"
+    # Save the sk_pipe pipeline as a mlflow.sklearn model in the directory "random_forest_dir"
     # HINT: use mlflow.sklearn.save_model
-    # YOUR CODE HERE
+    mlflow.sklearn.save_model(sk_pipe,"lgbm_dir")
     ######################################
 
     ######################################
     # Upload the model we just exported to W&B
     # HINT: use wandb.Artifact to create an artifact. Use args.output_artifact as artifact name, "model_export" as
     # type, provide a description and add rf_config as metadata. Then, use the .add_dir method of the artifact instance
-    # you just created to add the "lgbm_dir" directory to the artifact, and finally use
+    # you just created to add the "random_forest_dir" directory to the artifact, and finally use
     # run.log_artifact to log the artifact to the run
-    # YOUR CODE HERE
+    model_artifact = wandb.Artifact(
+        args.output_artifact,
+        type='model_export',
+        description='model upload to W&B',
+        metadata=rf_config
+
+    )
+
+    model_artifact.add_dir('lgbm_dir')
+
+    run.log_artifact(model_artifact)
     ######################################
 
     # Plot feature importance
@@ -116,7 +126,7 @@ def go(args):
     # Here we save r_squared under the "r2" key
     run.summary['r2'] = r_squared
     # Now log the variable "mae" under the key "mae".
-    # YOUR CODE HERE
+    run.summary['mae'] = mae
     ######################################
 
     # Upload to W&B the feture importance visualization
@@ -132,7 +142,7 @@ def plot_feature_importance(pipe, feat_names):
     feat_imp = pipe["lgbm"].feature_importances_[: len(feat_names)-1]
     # For the NLP feature we sum across all the TF-IDF dimensions into a global
     # NLP importance
-    nlp_importance = sum(pipe["random_forest"].feature_importances_[len(feat_names) - 1:])
+    nlp_importance = sum(pipe["lgbm"].feature_importances_[len(feat_names) - 1:])
     feat_imp = np.append(feat_imp, nlp_importance)
     fig_feat_imp, sub_feat_imp = plt.subplots(figsize=(10, 10))
     # idx = np.argsort(feat_imp)[::-1]
@@ -211,9 +221,9 @@ def get_inference_pipeline(rf_config, max_tfidf_features):
     )
 
     processed_features = (
-        #    ordinal_categorical + 
-        #    non_ordinal_categorical + 
-        #    zero_imputed + 
+            ordinal_categorical + 
+            non_ordinal_categorical + 
+            zero_imputed + 
             [
             "last_review", 
             "name"
