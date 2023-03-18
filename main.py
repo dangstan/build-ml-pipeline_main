@@ -118,8 +118,8 @@ def go(config: DictConfig):
             f"{config['main']['components_repository']}/test_regression_model",
             "main",
             parameters={
-                "mlflow_model": "lgbm_export:latest",
-                "test_dataset": "test_data.csv:latest"
+                "mlflow_model": "lgbm_export:prod",
+                "test_dataset": "test_main_data.csv:latest"
             },
         )
 
