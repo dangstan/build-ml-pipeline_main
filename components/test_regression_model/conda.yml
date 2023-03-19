@@ -10,4 +10,4 @@ dependencies:
   - pip:
       - wandb==0.13.10
       - lightgbm==3.3.4
-      - wandb-utils==0.1.2
+      - git+https://github.com/dangstan/build-ml-pipeline_main.git#egg=wandb-utils&subdirectory=components
