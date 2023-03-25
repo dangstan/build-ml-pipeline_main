@@ -340,7 +340,7 @@ with the cleaned data:
                     so we must add it to ``conda.yml`` file, including a version:
    ```yaml
    dependencies:
-     - pip=20.3.3
+     - pip=23.0.1
      - pandas=1.2.3
      - pip:
          - wandb==0.10.31
